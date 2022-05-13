@@ -1,11 +1,19 @@
 package model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.util.List;
+
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
 public class Route {
 
-    private Station extremite1;
-    private Station extremite2;
-    private String duree;
+    private long duration;
     private Direction direction;
     private Transport transport;
-    private String ligne;
 }

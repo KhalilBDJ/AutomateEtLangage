@@ -1,23 +1,22 @@
 package model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
+@ToString
 public class Direction {
 
-    private Set<Passage> passages;
+    private List<Passage> passages;
     private Station terminus;
     private Station currentStation;
 
     public Direction() {
-        this.passages = new HashSet<>();
+        this.passages = new ArrayList<>();
     }
 }

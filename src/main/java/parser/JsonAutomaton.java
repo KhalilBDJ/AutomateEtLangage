@@ -2,72 +2,89 @@ package parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import model.Direction;
-import model.Line;
-import model.Passage;
-import model.Station;
+import model.*;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
-public class JsonAutomaton extends Automaton {
-    private final InputStream file;
-    private Line line;
-
+public class JsonAutomaton extends Automaton<JsonNode> {
     public JsonAutomaton(){
         file = Objects.requireNonNull(getClass().getResourceAsStream("/bus.json"));
-        line = new Line();
+        line = new Line(Transport.CITY_BUS);
     }
-
+    //TODO: rework plus besoin de passer un JsonNode dans les méthodes !!
     public void decodeJson() throws IOException {
+        //TODO : mettre ça en attribut
         ObjectMapper mapper = new ObjectMapper();
         JsonNode bus = mapper.readTree(file);
 
-        System.out.println(getLineName(bus));
-        System.out.println(getLineStations(bus));
+        line.setName(getLineName(bus));
         line.setStations(getLineStations(bus));
-
+        line.setDirections(getDirections(bus));
+        System.out.println(createRoute());
     }
 
     public String getLineName(JsonNode jsonNode){
         return jsonNode.get("ligne").asText();
     }
 
-    public Set<Station> getLineStations(JsonNode jsonNode){
-        Set<Station> stations = new HashSet<Station>();
+    public List<Station> getLineStations(JsonNode jsonNode){
+        List<Station> stations = new ArrayList<>();
         JsonNode jsonStations = jsonNode.get("horaires").get(0).get("stations");
+        int stationIndex = 0;
         for (JsonNode station : jsonStations){
-            stations.add(new Station(station.get("station").asText()));
+            boolean isTerminus = stationIndex == 0 || stationIndex == jsonStations.size()-1;
+            stations.add(new Station(station.get("station").asText(), isTerminus));
+            stationIndex++;
         }
         return stations;
     }
 
-    public Set<Direction> getDirections(JsonNode jsonNode){
-        Set<Direction> directions = new HashSet<>();
+    public List<Direction> getDirections(JsonNode jsonNode){
+        List<Direction> directions = new ArrayList<>();
         JsonNode jsonDirections = jsonNode.get("horaires");
         for (JsonNode direction : jsonDirections){
             Station terminusStation = line.getStationWithName(direction.get("direction").asText());
             JsonNode passages = direction.get("passages");
-            int stationNbr = 0;
-            for (Station station : line.getStations()){
+            JsonNode jsonStations = direction.get("stations");
+            int stationIndex = 0;
+            for (JsonNode station : jsonStations){
+                Station currentStation = line.getStationWithName(station.get("station").asText());
+
                 Direction dir = new Direction();
-                Set<Passage> passages1 = new HashSet<>();
+                List<Passage> passages1 = new ArrayList<>();
+
                 for (int i = 0; i < line.getStations().size(); i++) {
-                    Passage passage = new Passage(passages.get(i).get(stationNbr).asText());
+                    Passage passage = new Passage(parseDuration(passages.get(i).get(stationIndex).asText()));
                     passages1.add(passage);
                 }
-                dir.setCurrentStation(station);
+
+                dir.setCurrentStation(currentStation);
                 dir.setTerminus(terminusStation);
                 dir.setPassages(passages1);
-                stationNbr++;
+                directions.add(dir);
+                stationIndex++;
             }
         }
         return directions;
     }
 
+    public List<Route> createRoute(){
+        List<Route> routes = new ArrayList<>();
+        for (Direction direction : line.getDirections()){
+            long routeDuration = line.durationBetweenNextStation(direction);
+            if (routeDuration != 0){
+                Route route = new Route(routeDuration, direction, Transport.CITY_BUS);
+                routes.add(route);
+            }
+        }
+        return routes;
+    }
 
+    public void addToNetwork(Network network){
+        network.addRoutes(createRoute());
+        network.addLine(line);
+    }
 }
