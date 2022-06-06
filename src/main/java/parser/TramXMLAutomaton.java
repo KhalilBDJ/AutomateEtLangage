@@ -1,5 +1,6 @@
 package parser;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.Getter;
@@ -27,7 +28,12 @@ public class TramXMLAutomaton {
         JacksonXmlModule module = new JacksonXmlModule();
         module.setDefaultUseWrapper(false);
         XmlMapper xmlMapper = new XmlMapper(module);
-        reseau = xmlMapper.readValue(file, TramPojo.Reseau.class);
+        try {
+            reseau = xmlMapper.readValue(file, TramPojo.Reseau.class);
+        }catch (JsonMappingException e){
+            System.err.println("Une erreur a été détecté dans la lacture du fichier XML : ");
+            throw e;
+        }
     }
 
     public TramXMLAutomaton(Network network, String filename) throws IOException {
@@ -37,7 +43,12 @@ public class TramXMLAutomaton {
         JacksonXmlModule module = new JacksonXmlModule();
         module.setDefaultUseWrapper(false);
         XmlMapper xmlMapper = new XmlMapper(module);
-        reseau = xmlMapper.readValue(file, TramPojo.Reseau.class);
+        try {
+            reseau = xmlMapper.readValue(file, TramPojo.Reseau.class);
+        }catch (JsonMappingException e){
+            System.err.println("Une erreur a été détecté dans la lacture du fichier XML : ");
+            throw e;
+        }
     }
 
     private void addNetworkGlobalStations(){

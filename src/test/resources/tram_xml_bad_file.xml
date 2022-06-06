@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<reseau
+    <stations>Gare Piscine</stations>
+    <lignes>
+        <ligne>1
+            <stations>Gare Piscine</stations>
+            <heures-passage>0720 0729</heures-passage>
+            <heures-passage>0740 0749</heures-passage>
+        </ligne>
+    </lignes>
+</reseau>

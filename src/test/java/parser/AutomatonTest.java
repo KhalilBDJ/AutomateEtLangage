@@ -1,6 +1,7 @@
 package parser;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import model.*;
 import org.junit.Test;
 
@@ -35,6 +36,13 @@ public class AutomatonTest {
         assertEquals(route, good_route(Transport.TRAIN));
     }
 
+    @Test(expected = JsonMappingException.class)
+    public void test_pass_train_xml_bad_file() throws IOException {
+        Network network = new Network();
+        TrainXMLAutomaton trainXMLAutomaton = new TrainXMLAutomaton(network,"/train_xml_bad_file.xml");
+        trainXMLAutomaton.defineLines();
+    }
+
     @Test
     public void test_pass_tram_xml_good_file() throws IOException {
         Network network = new Network();
@@ -46,6 +54,13 @@ public class AutomatonTest {
             route1.getDirection().getCurrentStation().setOrder(setGoodOrder(route1.getDirection().getCurrentStation()));
         }
         assertEquals(route, routes);
+    }
+
+    @Test(expected = JsonParseException.class)
+    public void test_pass_tram_xml_bad_file() throws IOException {
+        Network network = new Network();
+        TramXMLAutomaton tramXMLAutomaton = new TramXMLAutomaton(network,"/tram_xml_bad_file.xml");
+        tramXMLAutomaton.defineLines();
     }
 
     List<Route> good_route(Transport transport){

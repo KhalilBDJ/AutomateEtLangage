@@ -1,5 +1,6 @@
 package parser;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.Getter;
@@ -37,7 +38,12 @@ public class TrainXMLAutomaton {
         JacksonXmlModule module = new JacksonXmlModule();
         module.setDefaultUseWrapper(false);
         XmlMapper xmlMapper = new XmlMapper(module);
-        horaires = xmlMapper.readValue(file, TrainPojo.Horaires.class);
+        try {
+            horaires = xmlMapper.readValue(file, TrainPojo.Horaires.class);
+        }catch (JsonMappingException e){
+            System.err.println("Une erreur a été détecté dans la lacture du fichier XML : ");
+            throw e;
+        }
     }
 
     private void addNetworkGlobalStations() {
