@@ -13,7 +13,14 @@ import java.util.Objects;
 @ToString
 public class Station {
 
+    public Station(String nom, boolean isTerminus) {
+        this.nom = nom;
+        this.isTerminus = isTerminus;
+        this.order = 0;
+    }
+
     private String nom;
+    private int order;
     private boolean isTerminus;
 
     @Override
@@ -21,11 +28,11 @@ public class Station {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Station station = (Station) o;
-        return isTerminus == station.isTerminus && Objects.equals(nom, station.nom);
+        return order == station.order && isTerminus == station.isTerminus && Objects.equals(nom, station.nom);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nom, isTerminus);
+        return Objects.hash(nom, order, isTerminus);
     }
 }

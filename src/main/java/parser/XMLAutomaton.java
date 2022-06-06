@@ -48,6 +48,15 @@ public class XMLAutomaton extends Automaton<NodeList>{
             Node xmlLine = xmlLines.item(linesIndex);
             if (xmlLine.getNodeType() == Node.ELEMENT_NODE) {
                 System.out.println(xmlLine.getNodeName());
+//                System.out.println(xmlLine.getNodeValue());
+                NodeList nextChilds = xmlLine.getChildNodes();
+                for (int j = 0; j < xmlLine.getChildNodes().getLength(); j++) {
+                    Node item = nextChilds.item(j);
+                    if (item.getNodeType() == Node.ELEMENT_NODE) {
+                        System.out.println(item.getNodeName());
+                        System.out.println(item.getNodeValue());
+                    }
+                }
                 //TODO : check pk le getValue ne marche pas
             }
         }

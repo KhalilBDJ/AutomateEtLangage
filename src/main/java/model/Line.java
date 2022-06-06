@@ -2,6 +2,7 @@ package model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 public class Line {
 
     private List<Station> stations;
@@ -53,7 +55,7 @@ public class Line {
         if (next == null){
             return null;
         }
-        return directions.stream().filter(tempDirection -> tempDirection.getCurrentStation().equals(next) && tempDirection.getTerminus().equals(direction.getTerminus())).findFirst().get();
+        return directions.stream().filter(tempDirection -> tempDirection.getCurrentStation().equals(next) && tempDirection.getTerminus().equals(direction.getTerminus()) && tempDirection.getPassages().get(0).getSchedule().isAfter(direction.getPassages().get(0).getSchedule())).findFirst().orElse(null);
     }
 
     private List<Station> getReverseList(){
@@ -67,6 +69,18 @@ public class Line {
         if (nextDirection == null){
             return 0;
         }
-        return ChronoUnit.MINUTES.between(direction.getPassages().get(0).getSchedule(), nextDirection.getPassages().get(0).getSchedule());
+        return direction.getPassages().get(0).getArrival() != null ? ChronoUnit.MINUTES.between(direction.getPassages().get(0).getSchedule(), direction.getPassages().get(0).getArrival()) : ChronoUnit.MINUTES.between(direction.getPassages().get(0).getSchedule(), nextDirection.getPassages().get(0).getSchedule());
+    }
+
+    public Station determineTerminus(Station current, Station next){
+        Station confirmNext = nextStation(current);
+        if (confirmNext == null){
+            confirmNext = nextStation(current, getReverseList());
+            if (confirmNext == null){
+                System.out.println("ERREUR !");
+                return null;
+            }
+        }
+        return confirmNext.equals(next) ? stations.get(stations.size()-1) : stations.get(0);
     }
 }

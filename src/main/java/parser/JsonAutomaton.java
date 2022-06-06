@@ -1,5 +1,6 @@
 package parser;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import model.*;
@@ -10,20 +11,32 @@ import java.util.List;
 import java.util.Objects;
 
 public class JsonAutomaton extends Automaton<JsonNode> {
+    public JsonAutomaton(String filename){
+        file = Objects.requireNonNull(getClass().getResourceAsStream(filename));
+        line = new Line(Transport.CITY_BUS);
+    }
+
     public JsonAutomaton(){
         file = Objects.requireNonNull(getClass().getResourceAsStream("/bus.json"));
         line = new Line(Transport.CITY_BUS);
     }
+
+
     //TODO: rework plus besoin de passer un JsonNode dans les méthodes !!
     public void decodeJson() throws IOException {
         //TODO : mettre ça en attribut
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode bus = mapper.readTree(file);
+        JsonNode bus;
+        try{
+             bus = mapper.readTree(file);
+        }catch (JsonParseException e){
+            System.err.println("Une erreur a été détecté lors de la lecture du fichier json : ");
+            throw e;
+        }
 
         line.setName(getLineName(bus));
         line.setStations(getLineStations(bus));
         line.setDirections(getDirections(bus));
-        System.out.println(createRoute());
     }
 
     public String getLineName(JsonNode jsonNode){
