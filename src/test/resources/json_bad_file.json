@@ -1,0 +1,18 @@
+{
+  "ligne" : "1",
+  "horaires" :
+  [
+    {"direction": "Piscine"
+      "stations" :
+      [
+        {"station": "Gare"},
+        {"station": "Piscine"}
+      ],
+      "passages" :
+      [
+        ["0720","0729"],
+        ["0740","0749"]
+      ]
+    }
+  ]
+}

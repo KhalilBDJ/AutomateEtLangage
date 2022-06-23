@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -24,5 +25,18 @@ public class Direction {
 
     public Direction() {
         this.passages = new ArrayList<>();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Direction direction = (Direction) o;
+        return Objects.equals(passages, direction.passages) && Objects.equals(terminus, direction.terminus) && Objects.equals(currentStation, direction.currentStation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(passages, terminus, currentStation);
     }
 }
