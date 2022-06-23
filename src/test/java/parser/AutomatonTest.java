@@ -43,6 +43,13 @@ public class AutomatonTest {
         trainXMLAutomaton.defineLines();
     }
 
+    @Test(expected = IOException.class)
+    public void test_pass_train_xml_bad_value_file() throws IOException {
+        Network network = new Network();
+        TrainXMLAutomaton trainXMLAutomaton = new TrainXMLAutomaton(network,"/train_xml_bad_value_file.xml");
+        trainXMLAutomaton.defineLines();
+    }
+
     @Test
     public void test_pass_tram_xml_good_file() throws IOException {
         Network network = new Network();

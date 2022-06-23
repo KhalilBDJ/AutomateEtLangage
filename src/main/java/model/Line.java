@@ -26,7 +26,7 @@ public class Line {
     }
 
     public Station getStationWithName(String name){
-        return stations.stream().filter(station -> station.getNom().equals(name)).findFirst().get();
+        return stations.stream().filter(station -> station.getNom().equals(name)).findFirst().orElse(null);
     }
 
     private List<Station> sortListWithDirection(Direction direction){
@@ -77,7 +77,7 @@ public class Line {
         if (confirmNext == null){
             confirmNext = nextStation(current, getReverseList());
             if (confirmNext == null){
-                System.out.println("ERREUR !");
+                System.err.println("ERREUR !");
                 return null;
             }
         }

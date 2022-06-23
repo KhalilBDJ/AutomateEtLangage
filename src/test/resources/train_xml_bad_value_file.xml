@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<horaires>
+    <line>
+        <junction>
+            <start-station></start-station>
+            <arrival-station>Piscine</arrival-station>
+            <start-hour>0720</start-hour>
+            <arrival-hour>0729</arrival-hour>
+        </junction>
+        <junction>
+            <start-station>Gare</start-station>
+            <arrival-station>Piscine</arrival-station>
+            <start-hour>0740</start-hour>
+            <arrival-hour>0749</arrival-hour>
+        </junction>
+    </line>
+</horaires>

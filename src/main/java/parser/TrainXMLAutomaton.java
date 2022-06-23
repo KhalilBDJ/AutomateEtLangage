@@ -3,6 +3,7 @@ package parser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import jakarta.validation.*;
 import lombok.Getter;
 import model.*;
 import model.xml.TrainPojo;
@@ -13,6 +14,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 public class TrainXMLAutomaton {
@@ -22,13 +24,7 @@ public class TrainXMLAutomaton {
     Network network;
 
     public TrainXMLAutomaton(Network network) throws IOException {
-        this.network = network;
-        file = Objects.requireNonNull(getClass().getResourceAsStream("/train.xml"));
-        lines = new ArrayList<>();
-        JacksonXmlModule module = new JacksonXmlModule();
-        module.setDefaultUseWrapper(false);
-        XmlMapper xmlMapper = new XmlMapper(module);
-        horaires = xmlMapper.readValue(file, TrainPojo.Horaires.class);
+        this(network, "/train.xml");
     }
 
     public TrainXMLAutomaton(Network network, String filename) throws IOException {
@@ -40,8 +36,13 @@ public class TrainXMLAutomaton {
         XmlMapper xmlMapper = new XmlMapper(module);
         try {
             horaires = xmlMapper.readValue(file, TrainPojo.Horaires.class);
+            if (!isDataValid(horaires)){
+                throw new IOException("problème dans la lecture du fichier");
+            }
         }catch (JsonMappingException e){
             System.err.println("Une erreur a été détecté dans la lacture du fichier XML : ");
+            throw e;
+        } catch (IOException e) {
             throw e;
         }
     }
@@ -81,7 +82,6 @@ public class TrainXMLAutomaton {
             System.out.println(stations);
 
             boolean cycle = isCyclePresent(firstTerminus, ligne);
-
 
             List<Direction> directions = new ArrayList<>();
 
@@ -207,6 +207,7 @@ public class TrainXMLAutomaton {
         return stations;
     }
 
+    //TODO: mettre cette method dans class abstraite refacto avec type du fichier TRansport ...
     public List<Route> createRoute(){
         defineLines();
         List<Route> routes = new ArrayList<>();
@@ -234,5 +235,20 @@ public class TrainXMLAutomaton {
 
     private boolean isCyclePresent(Station terminus, TrainPojo.Line line) {
         return line.getJunctions().stream().anyMatch(junction -> junction.getStartStation().getValue().equals(terminus.getNom())) && line.getJunctions().stream().anyMatch(junction -> junction.getArrivalStation().getValue().equals(terminus.getNom()));
+    }
+
+    private boolean isDataValid(@Valid TrainPojo.Horaires horaires){
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        Set<ConstraintViolation<TrainPojo.Horaires>> constraintViolations = validator.validate(horaires);
+        if (!constraintViolations.isEmpty()) {
+            System.err.println("Erreur dans les valeurs du fichier :");
+            for (ConstraintViolation<TrainPojo.Horaires> violation : constraintViolations) {
+                System.err.printf("%s à %s%n", violation.getMessage(), violation.getPropertyPath().toString());
+            }
+            return false;
+        }
+        return true;
     }
 }

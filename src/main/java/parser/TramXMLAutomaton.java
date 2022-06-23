@@ -129,4 +129,6 @@ public class TramXMLAutomaton {
     protected LocalTime parseDuration(String duration){
         return LocalTime.of(Integer.parseInt(duration.substring(0,2)), Integer.parseInt(duration.substring(2)));
     }
+
+    //TODO : add validation to verify if same number of station and schedule
 }
