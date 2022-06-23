@@ -35,4 +35,8 @@ public class Station {
     public int hashCode() {
         return Objects.hash(nom, order, isTerminus);
     }
+
+    public boolean isTerminus() {
+        return isTerminus;
+    }
 }

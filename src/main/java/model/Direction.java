@@ -17,6 +17,12 @@ public class Direction {
     private Station terminus;
     private Station currentStation;
 
+    public Direction(List<Passage> passages, Station terminus, Station currentStation) {
+        this.passages = passages;
+        this.terminus = terminus;
+        this.currentStation = currentStation;
+    }
+
     public Direction() {
         this.passages = new ArrayList<>();
     }

@@ -81,6 +81,7 @@ public class JsonAutomaton extends Automaton<JsonNode> {
                 stationIndex++;
             }
         }
+        System.out.println(directions);
         return directions;
     }
 
@@ -89,7 +90,7 @@ public class JsonAutomaton extends Automaton<JsonNode> {
         for (Direction direction : line.getDirections()){
             long routeDuration = line.durationBetweenNextStation(direction);
             if (routeDuration != 0){
-                Route route = new Route(routeDuration, direction, Transport.CITY_BUS);
+                Route route = new Route(routeDuration, direction, Transport.BUS);
                 routes.add(route);
             }
         }
