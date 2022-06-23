@@ -140,6 +140,7 @@ public class TextAutomaton{
                 routes.add(route);
             }
         }
+
         return routes;
     }
 
@@ -147,4 +148,6 @@ public class TextAutomaton{
         network.addRoutes(createRoute());
         network.addLine(line);
     }
+
+
 }
