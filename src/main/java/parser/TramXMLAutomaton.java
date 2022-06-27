@@ -3,19 +3,19 @@ package parser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import exception.BadValueException;
 import lombok.Getter;
 import model.*;
 import model.xml.TramPojo;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Getter
-public class TramXMLAutomaton {
+public class TramXMLAutomaton extends Automaton{
     List<Line> lines;
     InputStream file;
     TramPojo.Reseau reseau;
@@ -51,7 +51,7 @@ public class TramXMLAutomaton {
         }
     }
 
-    private void addNetworkGlobalStations(){
+    public void addNetworkGlobalStations(){
         String[] stringStations = reseau.getStations().getValue().split(" ");
         for (String stationName : stringStations){
             Station startStation = network.getStationWithName(stationName);
@@ -61,7 +61,7 @@ public class TramXMLAutomaton {
         }
     }
 
-    public void defineLines() {
+    public void defineLines() throws BadValueException {
         addNetworkGlobalStations();
 
         for (TramPojo.Ligne ligne : reseau.getLignes().getLigne()){
@@ -104,7 +104,7 @@ public class TramXMLAutomaton {
         }
     }
 
-    public List<Route> createRoute(){
+    public List<Route> createRoute() throws BadValueException {
         defineLines();
         List<Route> routes = new ArrayList<>();
         for (Line line : lines){
@@ -121,13 +121,9 @@ public class TramXMLAutomaton {
         return routes;
     }
 
-    public void addToNetwork(Network network){
+    public void addToNetwork(Network network) throws BadValueException {
         network.addRoutes(createRoute());
         network.addLines(lines);
-    }
-
-    protected LocalTime parseDuration(String duration){
-        return LocalTime.of(Integer.parseInt(duration.substring(0,2)), Integer.parseInt(duration.substring(2)));
     }
 
     //TODO : add validation to verify if same number of station and schedule

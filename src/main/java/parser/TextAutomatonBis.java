@@ -28,6 +28,7 @@ public class TextAutomatonBis{
         List<Station> stations = new ArrayList<>();
         while (scanner.hasNextLine()){
             String strline = scanner.nextLine();
+            // Liaison circuit
             if (Pattern.matches("% stations", strline)){
                 List<String> stationsString = List.of(scanner.nextLine().split(" "));
                 for (String station: stationsString) {

@@ -2,6 +2,7 @@ package parser;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import exception.BadValueException;
 import model.*;
 import org.junit.Test;
 
@@ -10,26 +11,34 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class AutomatonTest {
 
     @Test
-    public void test_pass_with_json_good_file() throws IOException {
-        JsonAutomaton jsonAutomaton = new JsonAutomaton("/json_good_file.json");
-        jsonAutomaton.decodeJson();
+    public void test_pass_with_json_good_file() throws IOException, BadValueException {
+        Network network = new Network();
+        JsonAutomaton jsonAutomaton = new JsonAutomaton(network, "/json_good_file.json");
         List<Route> route = jsonAutomaton.createRoute();
-        assertEquals(route, good_route(Transport.CITY_BUS));
+        assertEquals(route, good_route(Transport.BUS));
     }
 
     @Test(expected = JsonParseException.class)
-    public void test_pass_with_json_bad_file() throws IOException {
-        JsonAutomaton jsonAutomaton = new JsonAutomaton("/json_bad_file.json");
-        jsonAutomaton.decodeJson();
+    public void test_pass_with_json_bad_file() throws IOException, BadValueException {
+        Network network = new Network();
+        JsonAutomaton jsonAutomaton = new JsonAutomaton(network, "/json_bad_file.json");
+        jsonAutomaton.createRoute();
+    }
+
+    @Test(expected = BadValueException.class)
+    public void test_pass_with_json_bad_value() throws IOException, BadValueException {
+        Network network = new Network();
+        JsonAutomaton jsonAutomaton = new JsonAutomaton(network,"/json_bad_value.json");
+        jsonAutomaton.createRoute();
     }
 
     @Test
-    public void test_pass_train_xml_good_file() throws IOException {
+    public void test_pass_train_xml_good_file() throws IOException, BadValueException {
         Network network = new Network();
         TrainXMLAutomaton trainXMLAutomaton = new TrainXMLAutomaton(network, "/train_xml_good_file.xml");
         List<Route> route = trainXMLAutomaton.createRoute();
@@ -37,21 +46,21 @@ public class AutomatonTest {
     }
 
     @Test(expected = JsonMappingException.class)
-    public void test_pass_train_xml_bad_file() throws IOException {
+    public void test_pass_train_xml_bad_file() throws IOException, BadValueException {
         Network network = new Network();
         TrainXMLAutomaton trainXMLAutomaton = new TrainXMLAutomaton(network,"/train_xml_bad_file.xml");
         trainXMLAutomaton.defineLines();
     }
 
     @Test(expected = IOException.class)
-    public void test_pass_train_xml_bad_value_file() throws IOException {
+    public void test_pass_train_xml_bad_value_file() throws IOException, BadValueException {
         Network network = new Network();
         TrainXMLAutomaton trainXMLAutomaton = new TrainXMLAutomaton(network,"/train_xml_bad_value_file.xml");
         trainXMLAutomaton.defineLines();
     }
 
     @Test
-    public void test_pass_tram_xml_good_file() throws IOException {
+    public void test_pass_tram_xml_good_file() throws IOException, BadValueException {
         Network network = new Network();
         TramXMLAutomaton tramXMLAutomaton = new TramXMLAutomaton(network, "/tram_xml_good_file.xml");
         List<Route> route = tramXMLAutomaton.createRoute();
@@ -64,9 +73,16 @@ public class AutomatonTest {
     }
 
     @Test(expected = JsonParseException.class)
-    public void test_pass_tram_xml_bad_file() throws IOException {
+    public void test_pass_tram_xml_bad_file() throws IOException, BadValueException {
         Network network = new Network();
         TramXMLAutomaton tramXMLAutomaton = new TramXMLAutomaton(network,"/tram_xml_bad_file.xml");
+        tramXMLAutomaton.defineLines();
+    }
+
+    @Test(expected = BadValueException.class)
+    public void test_pass_tram_xml_bad_value() throws IOException, BadValueException {
+        Network network = new Network();
+        TramXMLAutomaton tramXMLAutomaton = new TramXMLAutomaton(network,"/tram_xml_bad_value.xml");
         tramXMLAutomaton.defineLines();
     }
 

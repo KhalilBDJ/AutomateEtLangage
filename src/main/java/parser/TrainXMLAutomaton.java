@@ -3,6 +3,7 @@ package parser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import exception.BadValueException;
 import jakarta.validation.*;
 import lombok.Getter;
 import model.*;
@@ -10,14 +11,13 @@ import model.xml.TrainPojo;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 @Getter
-public class TrainXMLAutomaton {
+public class TrainXMLAutomaton extends Automaton{
     List<Line> lines;
     InputStream file;
     TrainPojo.Horaires horaires;
@@ -47,7 +47,7 @@ public class TrainXMLAutomaton {
         }
     }
 
-    private void addNetworkGlobalStations() {
+    public void addNetworkGlobalStations() {
         for (TrainPojo.Line line : horaires.getLines()) {
             for (TrainPojo.Junction junction : line.getJunctions()) {
                 Station startStation = network.getStationWithName(junction.getStartStation().getValue());
@@ -62,7 +62,7 @@ public class TrainXMLAutomaton {
         }
     }
 
-    public void defineLines() {
+    public void defineLines() throws BadValueException {
         addNetworkGlobalStations();
 
         for (TrainPojo.Line ligne : horaires.getLines()) {
@@ -192,7 +192,7 @@ public class TrainXMLAutomaton {
         }
     }
 
-    private List<Station> getStationsFromLine(TrainPojo.Line line) {
+    public List<Station> getStationsFromLine(TrainPojo.Line line) {
         List<Station> stations = new ArrayList<>();
         for (TrainPojo.Junction junction : line.getJunctions()) {
             Station startStation = network.getStationWithName(junction.getStartStation().getValue());
@@ -208,7 +208,7 @@ public class TrainXMLAutomaton {
     }
 
     //TODO: mettre cette method dans class abstraite refacto avec type du fichier TRansport ...
-    public List<Route> createRoute(){
+    public List<Route> createRoute() throws BadValueException {
         defineLines();
         List<Route> routes = new ArrayList<>();
         for (Line line : lines){
@@ -224,13 +224,9 @@ public class TrainXMLAutomaton {
         return routes;
     }
 
-    public void addToNetwork(Network network){
+    public void addToNetwork(Network network) throws BadValueException {
         network.addRoutes(createRoute());
         network.addLines(lines);
-    }
-
-    protected LocalTime parseDuration(String duration) {
-        return LocalTime.of(Integer.parseInt(duration.substring(0, 2)), Integer.parseInt(duration.substring(2)));
     }
 
     private boolean isCyclePresent(Station terminus, TrainPojo.Line line) {

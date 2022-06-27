@@ -1,16 +1,21 @@
+import exception.BadValueException;
+import model.Network;
+import model.Route;
 import model.Station;
 import org.xml.sax.SAXException;
 import parser.TextAutomatonBis;
+import parser.TrainXMLAutomaton;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.time.LocalTime;
+import java.util.List;
 
 public class Main {
-    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
+    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, BadValueException {
         //JsonAutomaton jsonAutomaton = new JsonAutomaton();
         //jsonAutomaton.decodeJson();
-        Station station = new Station("Syen", false);
+        //Station station = new Station("Syen", false);
 
         //XMLAutomaton xmlAutomaton = new XMLAutomaton();
         //xmlAutomaton.defineLines();
@@ -21,10 +26,10 @@ public class Main {
         //textAutomaton.setDirections();
         //textAutomaton.createRoute();
 
-        TextAutomatonBis automatonBis = new TextAutomatonBis();
+        //TextAutomatonBis automatonBis = new TextAutomatonBis();
         //System.out.println(LocalTime.of(Integer.parseInt("0020".substring(0,2)), Integer.parseInt("0020".substring(2))));
         //automatonBis.setDiretions();
-        automatonBis.decode();
+        //automatonBis.decode();
         //automatonBis.setStation();
         //automatonBis.setRules();
 
@@ -34,5 +39,10 @@ public class Main {
         List<String> list= new ArrayList<>(List.of(test2.split("\\s+")));
         list.remove(0);
         System.out.println(list);*/
+        Network network = new Network();
+
+        TrainXMLAutomaton trainXMLAutomaton = new TrainXMLAutomaton(network);
+        List<Route> route = trainXMLAutomaton.createRoute();
+        System.out.println(route);
     }
 }

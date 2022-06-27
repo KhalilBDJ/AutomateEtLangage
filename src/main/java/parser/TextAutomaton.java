@@ -2,11 +2,10 @@ package parser;
 
 import model.*;
 
-import javax.xml.crypto.Data;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
