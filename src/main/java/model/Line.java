@@ -72,6 +72,10 @@ public class Line {
         return direction.getPassages().get(0).getArrival() != null ? ChronoUnit.MINUTES.between(direction.getPassages().get(0).getSchedule(), direction.getPassages().get(0).getArrival()) : ChronoUnit.MINUTES.between(direction.getPassages().get(0).getSchedule(), nextDirection.getPassages().get(0).getSchedule());
     }
 
+    public boolean isNormalSens(Station terminus){
+        return !stations.get(0).equals(terminus);
+    }
+
     public Station determineTerminus(Station current, Station next){
         Station confirmNext = nextStation(current);
         if (confirmNext == null){
@@ -80,6 +84,7 @@ public class Line {
                 System.err.println("ERREUR !");
                 return null;
             }
+            return confirmNext.equals(next) ? stations.get(0) : stations.get(stations.size()-1);
         }
         return confirmNext.equals(next) ? stations.get(stations.size()-1) : stations.get(0);
     }

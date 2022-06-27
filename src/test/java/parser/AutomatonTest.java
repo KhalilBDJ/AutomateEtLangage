@@ -86,6 +86,16 @@ public class AutomatonTest {
         tramXMLAutomaton.defineLines();
     }
 
+    @Test
+    public void test_pass_inter_cite_text_good_file() throws IOException, BadValueException {
+        Network network = new Network();
+        InterCiteTextAutomaton interCiteTextAutomaton = new InterCiteTextAutomaton(network, "/inter_cite_text_good_file.txt");
+        List<Route> route = interCiteTextAutomaton.createRoute();
+
+        List<Route> routes = good_route(Transport.CITY_BUS);
+        assertEquals(route, routes);
+    }
+
     List<Route> good_route(Transport transport){
        List<Route> routes = new ArrayList<>();
        Route route = new Route(9, good_direction().get(0), transport);

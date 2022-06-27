@@ -63,6 +63,8 @@ public class JsonAutomaton extends Automaton {
     }
 
     public void defineLines() throws BadValueException {
+        addNetworkGlobalStations();
+
         List<Direction> directions = new ArrayList<>();
         JsonNode jsonDirections = bus.get("horaires");
         line.setStations(getStationsFromLine());

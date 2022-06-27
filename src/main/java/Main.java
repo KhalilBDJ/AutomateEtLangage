@@ -3,6 +3,7 @@ import model.Network;
 import model.Route;
 import model.Station;
 import org.xml.sax.SAXException;
+import parser.InterCiteTextAutomaton;
 import parser.TextAutomatonBis;
 import parser.TrainXMLAutomaton;
 
@@ -41,8 +42,11 @@ public class Main {
         System.out.println(list);*/
         Network network = new Network();
 
-        TrainXMLAutomaton trainXMLAutomaton = new TrainXMLAutomaton(network);
+/*        TrainXMLAutomaton trainXMLAutomaton = new TrainXMLAutomaton(network);
         List<Route> route = trainXMLAutomaton.createRoute();
-        System.out.println(route);
+        System.out.println(route);*/
+
+        InterCiteTextAutomaton interCiteTextAutomaton = new InterCiteTextAutomaton(network);
+        System.out.println(interCiteTextAutomaton.createRoute());
     }
 }
