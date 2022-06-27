@@ -10,7 +10,9 @@ import parser.TrainXMLAutomaton;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class Main {
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, BadValueException {
@@ -40,13 +42,18 @@ public class Main {
         List<String> list= new ArrayList<>(List.of(test2.split("\\s+")));
         list.remove(0);
         System.out.println(list);*/
-        Network network = new Network();
+        //Network network = new Network();
 
 /*        TrainXMLAutomaton trainXMLAutomaton = new TrainXMLAutomaton(network);
         List<Route> route = trainXMLAutomaton.createRoute();
         System.out.println(route);*/
 
-        InterCiteTextAutomaton interCiteTextAutomaton = new InterCiteTextAutomaton(network);
-        System.out.println(interCiteTextAutomaton.createRoute());
+        //InterCiteTextAutomaton interCiteTextAutomaton = new InterCiteTextAutomaton(network);
+        //System.out.println(interCiteTextAutomaton.createRoute());
+        String strline = "% départ de Gare toutes les 10 minutes de 07:00 à 09:00 et de 16:30à 18:00";
+        List<String> rule = new ArrayList<>(List.of(strline.replaceAll("[A-Za-zùàé%]", "").replaceAll(":", "").split("\\s+")));
+        System.out.println(rule);
+        System.out.println(Pattern.matches("% départ de Gare toutes les (?<!\\d)[0-9](?!\\d)|[1-5][0-9]|60] minutes de [0-1][0-9]|[2][0-3]:[0-5][0-9] à  [0-1][0-9]|[2][0-3]:[0-5][0-9] et de [0-1][0-9]|[2][0-3]:[0-5][0-9]à [0-1][0-9]|[2][0-3]:[0-5][0-9]", strline));
+
     }
 }

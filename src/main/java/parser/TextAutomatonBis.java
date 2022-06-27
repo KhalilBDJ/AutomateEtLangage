@@ -16,7 +16,7 @@ public class TextAutomatonBis{
     protected File file;
     protected Line line;
 
-    public Metro.TempsArret arret;
+    //public Metro.TempsArret arret;
     public List<String> tempsDepart = new ArrayList<>();
     public TextAutomatonBis(){
        file = new File("./src/main/resources/metro.txt");
@@ -58,7 +58,7 @@ public class TextAutomatonBis{
 
             String strline = scanner.nextLine();
             if (Pattern.matches("% arrêt de .*",strline)){
-                arret = new Metro.TempsArret(Integer.parseInt(strline.replaceAll("[A-Za-zâê% ]", "").replaceAll(":", "")));
+                //arret = new Metro.TempsArret(Integer.parseInt(strline.replaceAll("[A-Za-zâê% ]", "").replaceAll(":", "")));
 
             }
             if (Pattern.matches("% départ de .*", strline)){
@@ -97,7 +97,7 @@ public class TextAutomatonBis{
 
         }
         System.out.println(rules);
-        System.out.println(arret.getA());
+        //System.out.println(arret.getA());
         System.out.println(tempsDepart);
         return rules;
     }
@@ -212,7 +212,7 @@ public class TextAutomatonBis{
     private List<Passage> nextPassage(List<Passage> previousPassages, int dureePassage){
         List<Passage> newPassages = new ArrayList<>();
         for (Passage passage:previousPassages) {
-            newPassages.add(new Passage(passage.getSchedule().plusMinutes(dureePassage + arret.getA())));
+            newPassages.add(new Passage(passage.getSchedule().plusMinutes(dureePassage  /*arret.getA()*/)));
         }
         System.out.println(newPassages);
         return newPassages;
