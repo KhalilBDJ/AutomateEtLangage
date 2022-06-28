@@ -1,0 +1,13 @@
+% Car Inter-Cité
+% tables horaires
+%
+% liste des liaisons :
+% depart arrivee duree-trajet
+%
+% liste d'horaires :
+% depart arrivee heure-depart
+%
+Gare		Piscine		9
+//
+Gare		Piscine		0720
+Gare		Piscine		040

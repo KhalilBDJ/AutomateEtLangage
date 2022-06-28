@@ -6,15 +6,15 @@ import model.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MetroAutomatonText extends Automaton{
-
-    protected File file;
     Network network;
     List<Line> lines;
 
@@ -25,14 +25,15 @@ public class MetroAutomatonText extends Automaton{
 
     private int tempsArret;
 
-    public MetroAutomatonText(File file, Network network) {
-        this.file = file;
+    public MetroAutomatonText(Network network) throws BadValueException, FileNotFoundException {
+        this.file = Objects.requireNonNull(getClass().getResourceAsStream("/metro.txt"));;
         this.network = network;
         lines = new ArrayList<>();
         circuits = new ArrayList<>();
         ars = new ArrayList<>();
         stations = new ArrayList<>();
         rules = new ArrayList<>();
+        Init();
     }
     public void Init() throws FileNotFoundException, BadValueException {
         Scanner scanner = new Scanner(file);
@@ -78,7 +79,7 @@ public class MetroAutomatonText extends Automaton{
                 }
             }
             if (Pattern.matches("%.*(0?[0-9]|[1-5][0-9]) minutes de (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9]) à (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9]) et de (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9])à (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9])", strline)){
-                List<String> rule = new ArrayList<>(List.of(strline.replaceAll(":", "").replaceAll("[^0-9à]", " ").split("\\s+")));
+                List<String> rule = new ArrayList<>(List.of(strline.replaceAll(":", "").replaceAll("[^0-9]", " ").split("\\s+")));
                 rule.remove(0);
                 int j = 1;
                 while (j<rule.size()){
@@ -87,7 +88,7 @@ public class MetroAutomatonText extends Automaton{
                 }
                 String nextRule=scanner.nextLine();
                 if (nextRule.matches(".*(0?[0-9]|[1-5][0-9]) minutes sinon")){
-                    rule = new ArrayList<>(List.of(nextRule.replaceAll(":", "").replaceAll("[^0-9à]", " ").split("\\s+")));
+                    rule = new ArrayList<>(List.of(nextRule.replaceAll(":", "").replaceAll("[^0-9]", " ").split("\\s+")));
                     rule.remove(0);
                     Metro.Rule rule1;
                     Metro.Rule rule2;
@@ -96,7 +97,7 @@ public class MetroAutomatonText extends Automaton{
                     rules.add(rule1);
                     String finalStart = scanner.nextLine();
                     if (finalStart.matches(".*(0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9])")){
-                        rule = new ArrayList<>(List.of(finalStart.replaceAll(":", "").replaceAll("[^0-9à]", " ").split("\\s+")));
+                        rule = new ArrayList<>(List.of(finalStart.replaceAll(":", "").replaceAll("[^0-9]", " ").split("\\s+")));
                         rule.remove(0);
                         String lastStart = rule.get(0);
                         rule2 = new Metro.Rule(rules.get(1).getFin(), parseDuration(lastStart), intervalle1);
@@ -118,22 +119,149 @@ public class MetroAutomatonText extends Automaton{
 
     @Override
     public void defineLines() throws BadValueException {
+        addNetworkGlobalStations();
+
         int numberLine = 0;
         for (Metro.AR liaisonAR: ars) {
             Line line = new Line(Transport.METRO);
             line.setName("" + (++numberLine));
+            line.setStations(liaisonAR.getAllStations());
 
+            List<Direction> directions = new ArrayList<>();
+
+            Direction direction = new Direction();
+
+            List<Passage> passages = initPassages();
+
+            Station current = line.getStations().get(0);
+            Station next = line.getStations().get(1);
+
+            direction.setTerminus(line.determineTerminus(current, next));
+            direction.setPassages(passages);
+            direction.setCurrentStation(current);
+            directions.add(direction);
+
+            for (int i = 1; i < line.getStations().size()-1; i++) {
+                direction = new Direction();
+                passages = nextPassage(passages, rules.get(0).getIntervalle());
+                current = line.getStations().get(i);
+                next = line.getStations().get(i+1);
+                direction.setTerminus(line.determineTerminus(current, next));
+                direction.setPassages(passages);
+                direction.setCurrentStation(current);
+                directions.add(direction);
+            }
+            line.setDirections(directions);
+            lines.add(line);
         }
+
+        for(Metro.Circuit liaisonCircuit: circuits){
+            Line line = new Line(Transport.METRO);
+            line.setName("" + (++numberLine));
+            line.setStations(liaisonCircuit.getAllStations());
+
+            List<Direction> directions = new ArrayList<>();
+
+            Direction direction = new Direction();
+
+            List<Passage> passages = initPassages();
+
+            Station current = line.getStations().get(0);
+            Station next = line.getStations().get(1);
+
+            direction.setTerminus(line.determineTerminus(current, next));
+            direction.setPassages(passages);
+            direction.setCurrentStation(current);
+            directions.add(direction);
+
+            for (int i = 1; i < line.getStations().size()-1; i++) {
+                direction = new Direction();
+                passages = nextPassage(passages, rules.get(0).getIntervalle());
+                current = line.getStations().get(i);
+                next = line.getStations().get(i+1);
+                direction.setTerminus(line.determineTerminus(current, next));
+                direction.setPassages(passages);
+                direction.setCurrentStation(current);
+                directions.add(direction);
+            }
+
+            for (int i = line.getStations().size()-1; i > 1; i--) {
+                direction = new Direction();
+                passages = nextPassage(passages, rules.get(0).getIntervalle());
+                current = line.getStations().get(i);
+                next = line.getStations().get(i-1);
+                direction.setTerminus(line.determineTerminus(current, next));
+                direction.setPassages(passages);
+                direction.setCurrentStation(current);
+                directions.add(direction);
+            }
+            line.setDirections(directions);
+            lines.add(line);
+        }
+    }
+
+    public List<Passage> initPassages(){
+        int j=7;
+        int i=0;
+
+        LocalTime matin_debut = rules.get(0).getDebut();
+        LocalTime matin_fin = rules.get(0).getFin();
+        LocalTime aprem_debut = rules.get(1).getDebut();
+        LocalTime aprem_fin = rules.get(1).getFin();
+        LocalTime end = rules.get(2).getFin();
+
+        List<Passage> passages = new ArrayList<>();
+        LocalTime heure;
+        while (j<24){
+            heure=LocalTime.of(j,i);
+            if ((heure.isAfter(matin_debut)&& heure.isBefore(matin_fin) || heure.equals(matin_debut)) || (heure.isAfter(aprem_debut) && heure.isBefore(aprem_fin)) || heure.equals(aprem_debut)){
+                Passage passage = new Passage(heure);
+                passages.add(passage);
+                i = i+ rules.get(0).getIntervalle();
+            } else if (heure.isAfter(end)) {
+                break;
+            } else{
+                Passage passage = new Passage(heure);
+                passages.add(passage);
+                i = i+ rules.get(1).getIntervalle();
+            }
+            if (i == 60){
+                i = 0;
+                j++;
+            }
+        }
+        return passages;
+    }
+
+    private List<Passage> nextPassage(List<Passage> previousPassages, int dureePassage){
+        List<Passage> newPassages = new ArrayList<>();
+        for (Passage passage:previousPassages) {
+            newPassages.add(new Passage(passage.getSchedule().plusMinutes(dureePassage+tempsArret)));
+        }
+        return newPassages;
     }
 
     @Override
     public List<Route> createRoute() throws BadValueException {
-        return null;
+        defineLines();
+
+        List<Route> routes = new ArrayList<>();
+        for (Line line : lines){
+            for (Direction direction : line.getDirections()){
+                long routeDuration = line.durationBetweenNextStation(direction);
+                if (routeDuration != 0){
+                    Route route = new Route(routeDuration, direction, Transport.METRO);
+                    routes.add(route);
+                }
+            }
+        }
+        return routes;
     }
 
     @Override
     public void addToNetwork(Network network) throws BadValueException {
-
+        network.addRoutes(createRoute());
+        network.addLines(lines);
     }
 
 

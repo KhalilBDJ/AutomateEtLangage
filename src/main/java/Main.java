@@ -4,6 +4,7 @@ import model.Route;
 import model.Station;
 import org.xml.sax.SAXException;
 import parser.InterCiteTextAutomaton;
+import parser.MetroAutomatonText;
 import parser.TextAutomatonBis;
 import parser.TrainXMLAutomaton;
 
@@ -50,9 +51,7 @@ public class Main {
 
         //InterCiteTextAutomaton interCiteTextAutomaton = new InterCiteTextAutomaton(network);
         //System.out.println(interCiteTextAutomaton.createRoute());
-        String strline = "% départ de Gare toutes les 20 minutes sinon";
-        List<String> rule = new ArrayList<>(List.of(strline.replaceAll(":", "").replaceAll("[^0-9]", " ").split("\\s+")));
-        System.out.println(rule);
-        System.out.println(Pattern.matches("%.*(0?[0-9]|[1-5][0-9]) minutes de (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9]) à (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9]) et de (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9])à (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9])", strline));
-    }
+        MetroAutomatonText metroAutomatonText = new MetroAutomatonText(new Network());
+        System.out.println(metroAutomatonText.createRoute());
+       }
 }

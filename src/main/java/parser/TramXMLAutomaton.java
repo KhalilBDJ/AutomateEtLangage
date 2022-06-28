@@ -110,8 +110,6 @@ public class TramXMLAutomaton extends Automaton{
         for (Line line : lines){
             for (Direction direction : line.getDirections()){
                 long routeDuration = line.durationBetweenNextStation(direction);
-                System.out.println(direction);
-                System.out.println(routeDuration);
                 if (routeDuration != 0){
                     Route route = new Route(routeDuration, direction, Transport.TRAM);
                     routes.add(route);

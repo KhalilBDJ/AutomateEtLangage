@@ -79,8 +79,6 @@ public class TrainXMLAutomaton extends Automaton{
             terminus.add(secondTerminus);
             line.setStations(stations);
 
-            System.out.println(stations);
-
             boolean cycle = isCyclePresent(firstTerminus, ligne);
 
             List<Direction> directions = new ArrayList<>();
@@ -149,7 +147,6 @@ public class TrainXMLAutomaton extends Automaton{
                 lastdirection.setTerminus(stations.get(0));
                 directions.add(lastdirection);
             }else{
-                System.out.println("PAS DE CYCLE");
                 for (Station station1 : stations) {
                     for (Station station2 : stations) {
                         //INIT
@@ -213,7 +210,6 @@ public class TrainXMLAutomaton extends Automaton{
         List<Route> routes = new ArrayList<>();
         for (Line line : lines){
             for (Direction direction : line.getDirections()){
-                System.out.println(direction);
                 long routeDuration = line.durationBetweenNextStation(direction);
                 if (routeDuration != 0){
                     Route route = new Route(routeDuration, direction, Transport.TRAIN);

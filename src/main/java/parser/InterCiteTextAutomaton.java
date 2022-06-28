@@ -44,10 +44,17 @@ public class InterCiteTextAutomaton extends Automaton{
     public void GetLiaisons() throws IOException, BadValueException {
         Scanner scanner = new Scanner(file);
         String datas = "";
+        String verif = "";
 
         // On recup l'ensemble du fichier
         while(scanner.hasNextLine()){
             String strline = scanner.nextLine();
+            if(!strline.contains("%") && !strline.matches("//")){
+                verif += strline + "\n";
+            }else if(strline.matches("//")){
+                verif += strline;
+            }
+
             if(strline.matches("(\\w+)(\\s+)(\\w+)\\s+\\d{1,2}(?!\\d)")){
                 datas = datas + strline + "\n";
             } else if (strline.matches("(\\w+)\\s+(\\w+)\\s+\\d{4}")) {
@@ -56,6 +63,11 @@ public class InterCiteTextAutomaton extends Automaton{
                 datas = datas + strline;
             }
         }
+
+        if (verif.length() != datas.length()){
+            throw new IOException();
+        }
+
         List<String> texts = List.of(datas.split("//")); //On sépare les deux paragraphes en deux tableaux
 
         List<String> tempDurations = List.of(texts.get(0).split("\n"));// On récupère chaque ligne du premier paragraphe

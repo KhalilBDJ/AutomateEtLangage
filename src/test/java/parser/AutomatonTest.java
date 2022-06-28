@@ -96,6 +96,20 @@ public class AutomatonTest {
         assertEquals(route, routes);
     }
 
+    @Test(expected = IOException.class)
+    public void test_pass_inter_cite_text_bad_file() throws IOException, BadValueException {
+        Network network = new Network();
+        InterCiteTextAutomaton interCiteTextAutomaton = new InterCiteTextAutomaton(network,"/inter_cite_text_bad_file.txt");
+        interCiteTextAutomaton.defineLines();
+    }
+
+    @Test(expected = IOException.class)
+    public void test_pass_inter_cite_text_bad_value() throws IOException, BadValueException {
+        Network network = new Network();
+        InterCiteTextAutomaton interCiteTextAutomaton = new InterCiteTextAutomaton(network,"/inter_cite_text_bad_value.txt");
+        interCiteTextAutomaton.defineLines();
+    }
+
     List<Route> good_route(Transport transport){
        List<Route> routes = new ArrayList<>();
        Route route = new Route(9, good_direction().get(0), transport);
@@ -123,7 +137,6 @@ public class AutomatonTest {
         List<Direction> directions = new ArrayList<>();
         directions.add(direction1);
         directions.add(direction2);
-        System.out.println(directions);
         return directions;
     }
 

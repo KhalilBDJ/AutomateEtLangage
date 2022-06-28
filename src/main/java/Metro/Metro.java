@@ -12,8 +12,6 @@ import java.util.Objects;
 
 public class Metro {
 
-
-
     @ToString
     public static class Liaison{
         Station start;
@@ -107,6 +105,16 @@ public class Metro {
         public AR(){
             lnodes = new ArrayList<>();
         }
+
+        public List<Station> getAllStations(){
+            List<Station> stations = new ArrayList<>();
+            for (Lnode node : lnodes){
+                stations.add(new Station(node.start, false));
+            }
+            stations.get(0).setTerminus(true);
+            stations.add(new Station(lnodes.get(lnodes.size()-1).end, true));
+            return stations;
+        }
     }
 
     @Getter
@@ -115,6 +123,22 @@ public class Metro {
         public Circuit(){
             lnodes = new ArrayList<>();
         }
+
+        public List<Station> getAllStations(){
+            List<Station> stations = new ArrayList<>();
+            int order = 0;
+            for (Lnode node : lnodes){
+                Station station = new Station(node.start, false);
+                station.setOrder(++order);
+                stations.add(station);
+            }
+            stations.get(0).setTerminus(true);
+            Station last = new Station(lnodes.get(lnodes.size() - 1).end, true);
+            last.setOrder(++order);
+            stations.add(last);
+            return stations;
+        }
+
     }
 
     @Getter
