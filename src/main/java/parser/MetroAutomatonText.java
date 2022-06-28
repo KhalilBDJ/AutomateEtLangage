@@ -41,7 +41,7 @@ public class MetroAutomatonText extends Automaton{
             String strline = scanner.nextLine();
             if (Pattern.matches("% stations", strline)){
                 String nextLine = scanner.nextLine();
-                if (Pattern.matches("\\w+", nextLine)){
+                if (Pattern.matches("(\\w+\\s*)*", nextLine)){
                     for (String station: nextLine.split(" ")) {
                         stations.add(new Station(station, false));
                     }
@@ -55,9 +55,9 @@ public class MetroAutomatonText extends Automaton{
                     String[] split = nextLine.split(" ");
                     Metro.Lnode lnode = new Metro.Lnode(split[0],split[1],Long.parseLong(split[2]));
                     ar.getLnodes().add(lnode);
-                    ars.add(ar);
                     nextLine = scanner.nextLine();
                 }
+                ars.add(ar);
             }
             if (Pattern.matches("% liaisons circuit", strline)){
                 Metro.Circuit circuit = new Metro.Circuit();
@@ -67,11 +67,11 @@ public class MetroAutomatonText extends Automaton{
                     String[] split = nextLine.split(" ");
                     Metro.Lnode lnode = new Metro.Lnode(split[0],split[1],Long.parseLong(split[2]));
                     circuit.getLnodes().add(lnode);
-                    circuits.add(circuit);
                     nextLine = scanner.nextLine();
                 }
+                circuits.add(circuit);
             }
-            if (Pattern.matches("% arrêt de (?<!\\d)[0-9](?!\\d)|[1-5][0-9]|60]", strline)){
+            if (Pattern.matches("% arrêt de \\d minutes en station", strline)){
                 Pattern p = Pattern.compile("(?<!\\d)[0-9](?!\\d)|[1-5][0-9]|60]");
                 Matcher m = p.matcher(strline);
                 if (m.find()){
@@ -143,9 +143,13 @@ public class MetroAutomatonText extends Automaton{
 
             for (int i = 1; i < line.getStations().size()-1; i++) {
                 direction = new Direction();
-                passages = nextPassage(passages, rules.get(0).getIntervalle());
                 current = line.getStations().get(i);
                 next = line.getStations().get(i+1);
+
+                Station localStation = current;
+
+                long duration = liaisonAR.getLnodes().stream().filter(lnode -> lnode.getEnd().equals(localStation.getNom())).findFirst().get().getDuration();
+                passages = nextPassage(passages, (int) duration);
                 direction.setTerminus(line.determineTerminus(current, next));
                 direction.setPassages(passages);
                 direction.setCurrentStation(current);
@@ -176,20 +180,14 @@ public class MetroAutomatonText extends Automaton{
 
             for (int i = 1; i < line.getStations().size()-1; i++) {
                 direction = new Direction();
-                passages = nextPassage(passages, rules.get(0).getIntervalle());
                 current = line.getStations().get(i);
                 next = line.getStations().get(i+1);
-                direction.setTerminus(line.determineTerminus(current, next));
-                direction.setPassages(passages);
-                direction.setCurrentStation(current);
-                directions.add(direction);
-            }
 
-            for (int i = line.getStations().size()-1; i > 1; i--) {
-                direction = new Direction();
-                passages = nextPassage(passages, rules.get(0).getIntervalle());
-                current = line.getStations().get(i);
-                next = line.getStations().get(i-1);
+                Station localStation = current;
+
+                long duration = liaisonCircuit.getLnodes().stream().filter(lnode -> lnode.getEnd().equals(localStation.getNom())).findFirst().get().getDuration();
+                passages = nextPassage(passages, (int) duration);
+
                 direction.setTerminus(line.determineTerminus(current, next));
                 direction.setPassages(passages);
                 direction.setCurrentStation(current);
@@ -204,17 +202,17 @@ public class MetroAutomatonText extends Automaton{
         int j=7;
         int i=0;
 
-        LocalTime matin_debut = rules.get(0).getDebut();
-        LocalTime matin_fin = rules.get(0).getFin();
-        LocalTime aprem_debut = rules.get(1).getDebut();
-        LocalTime aprem_fin = rules.get(1).getFin();
-        LocalTime end = rules.get(2).getFin();
+        LocalTime matinDebut = rules.get(0).getDebut();
+        LocalTime matinFin = rules.get(0).getFin();
+        LocalTime apremDebut = rules.get(1).getDebut();
+        LocalTime apremFin = rules.get(1).getFin();
+        LocalTime end = rules.get(3).getFin();
 
         List<Passage> passages = new ArrayList<>();
         LocalTime heure;
         while (j<24){
             heure=LocalTime.of(j,i);
-            if ((heure.isAfter(matin_debut)&& heure.isBefore(matin_fin) || heure.equals(matin_debut)) || (heure.isAfter(aprem_debut) && heure.isBefore(aprem_fin)) || heure.equals(aprem_debut)){
+            if ((heure.isAfter(matinDebut)&& heure.isBefore(matinFin) || heure.equals(matinDebut)) || (heure.isAfter(apremDebut) && heure.isBefore(apremFin)) || heure.equals(apremDebut)){
                 Passage passage = new Passage(heure);
                 passages.add(passage);
                 i = i+ rules.get(0).getIntervalle();
@@ -248,14 +246,23 @@ public class MetroAutomatonText extends Automaton{
         List<Route> routes = new ArrayList<>();
         for (Line line : lines){
             for (Direction direction : line.getDirections()){
-                long routeDuration = line.durationBetweenNextStation(direction);
+                long routeDuration = line.durationBetweenNextStation(direction)-2;
                 if (routeDuration != 0){
+                    if (routeDuration < 0){
+                        routeDuration = getGoodDuration(line, direction);
+                    }
                     Route route = new Route(routeDuration, direction, Transport.METRO);
                     routes.add(route);
                 }
             }
         }
         return routes;
+    }
+
+    private long getGoodDuration(Line line, Direction direction){
+        Station current = direction.getCurrentStation();
+        // TODO : numéroté les AR et circuit avec même numéro que ligne et rechercher dedans
+        return 0;
     }
 
     @Override
