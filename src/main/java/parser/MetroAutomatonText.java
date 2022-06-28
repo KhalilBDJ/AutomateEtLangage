@@ -31,8 +31,10 @@ public class MetroAutomatonText extends Automaton{
         lines = new ArrayList<>();
         circuits = new ArrayList<>();
         ars = new ArrayList<>();
+        stations = new ArrayList<>();
+        rules = new ArrayList<>();
     }
-    public void Init() throws FileNotFoundException {
+    public void Init() throws FileNotFoundException, BadValueException {
         Scanner scanner = new Scanner(file);
         while (scanner.hasNextLine()){
             String strline = scanner.nextLine();
@@ -75,20 +77,53 @@ public class MetroAutomatonText extends Automaton{
                     tempsArret = Integer.parseInt(m.group(0));
                 }
             }
-            if (Pattern.matches("% départ de Gare toutes les (?<!\\d)[0-9](?!\\d)|[1-5][0-9]|60 minutes de [0-1][0-9]|[2][0-3]:[0-5][0-9] à  [0-1][0-9]|[2][0-3]:[0-5][0-9] et de [0-1][0-9]|[2][0-3]:[0-5][0-9]à [0-1][0-9]|[2][0-3]:[0-5][0-9]", strline)){
-
+            if (Pattern.matches("%.*(0?[0-9]|[1-5][0-9]) minutes de (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9]) à (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9]) et de (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9])à (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9])", strline)){
+                List<String> rule = new ArrayList<>(List.of(strline.replaceAll(":", "").replaceAll("[^0-9à]", " ").split("\\s+")));
+                rule.remove(0);
+                int j = 1;
+                while (j<rule.size()){
+                    rules.add(new Metro.Rule(parseDuration(rule.get(j)), parseDuration(rule.get(j+1)), Integer.parseInt(rule.get(0))));
+                    j+=2;
+                }
+                String nextRule=scanner.nextLine();
+                if (nextRule.matches(".*(0?[0-9]|[1-5][0-9]) minutes sinon")){
+                    rule = new ArrayList<>(List.of(nextRule.replaceAll(":", "").replaceAll("[^0-9à]", " ").split("\\s+")));
+                    rule.remove(0);
+                    Metro.Rule rule1;
+                    Metro.Rule rule2;
+                    int intervalle1 = Integer.parseInt(rule.get(0));
+                    rule1 = new Metro.Rule(rules.get(0).getFin(), rules.get(1).getDebut(), intervalle1);
+                    rules.add(rule1);
+                    String finalStart = scanner.nextLine();
+                    if (finalStart.matches(".*(0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9])")){
+                        rule = new ArrayList<>(List.of(finalStart.replaceAll(":", "").replaceAll("[^0-9à]", " ").split("\\s+")));
+                        rule.remove(0);
+                        String lastStart = rule.get(0);
+                        rule2 = new Metro.Rule(rules.get(1).getFin(), parseDuration(lastStart), intervalle1);
+                        rules.add(rule2);
+                    }
+                }
             }
-
         }
     }
     @Override
     public void addNetworkGlobalStations() {
-
+        for (Station station: stations) {
+            Station startStation = network.getStationWithName(station.getNom());
+            if (startStation == null){
+                network.addStation(new Station(station.getNom(), false));
+            }
+        }
     }
 
     @Override
     public void defineLines() throws BadValueException {
+        int numberLine = 0;
+        for (Metro.AR liaisonAR: ars) {
+            Line line = new Line(Transport.METRO);
+            line.setName("" + (++numberLine));
 
+        }
     }
 
     @Override

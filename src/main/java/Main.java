@@ -50,10 +50,9 @@ public class Main {
 
         //InterCiteTextAutomaton interCiteTextAutomaton = new InterCiteTextAutomaton(network);
         //System.out.println(interCiteTextAutomaton.createRoute());
-        String strline = "% départ de Gare toutes les 10 minutes de 07:00 à 09:00 et de 16:30à 18:00";
-        List<String> rule = new ArrayList<>(List.of(strline.replaceAll("[A-Za-zùàé%]", "").replaceAll(":", "").split("\\s+")));
+        String strline = "% départ de Gare toutes les 20 minutes sinon";
+        List<String> rule = new ArrayList<>(List.of(strline.replaceAll(":", "").replaceAll("[^0-9]", " ").split("\\s+")));
         System.out.println(rule);
-        System.out.println(Pattern.matches("% départ de Gare toutes les (?<!\\d)[0-9](?!\\d)|[1-5][0-9]|60] minutes de [0-1][0-9]|[2][0-3]:[0-5][0-9] à  [0-1][0-9]|[2][0-3]:[0-5][0-9] et de [0-1][0-9]|[2][0-3]:[0-5][0-9]à [0-1][0-9]|[2][0-3]:[0-5][0-9]", strline));
-
+        System.out.println(Pattern.matches("%.*(0?[0-9]|[1-5][0-9]) minutes de (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9]) à (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9]) et de (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9])à (0?[0-9]|1[0-9]|2[0-3]):(0?[0-9]|[1-5][0-9])", strline));
     }
 }
