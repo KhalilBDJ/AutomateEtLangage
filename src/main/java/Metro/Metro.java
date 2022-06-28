@@ -102,8 +102,10 @@ public class Metro {
     @Getter
     public static class AR {
         List<Lnode> lnodes;
-        public AR(){
+        int id;
+        public AR(int id){
             lnodes = new ArrayList<>();
+            this.id = id;
         }
 
         public List<Station> getAllStations(){
@@ -120,8 +122,10 @@ public class Metro {
     @Getter
     public static class Circuit{
         List<Lnode> lnodes;
-        public Circuit(){
+        int id;
+        public Circuit(int id){
             lnodes = new ArrayList<>();
+            this.id = id;
         }
 
         public List<Station> getAllStations(){

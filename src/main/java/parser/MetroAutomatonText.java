@@ -4,7 +4,6 @@ import Metro.Metro;
 import exception.BadValueException;
 import model.*;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -18,10 +17,10 @@ public class MetroAutomatonText extends Automaton{
     Network network;
     List<Line> lines;
 
-    private List<Station> stations;
-    private List<Metro.Rule> rules;
-    private List<Metro.AR> ars;
-    private List<Metro.Circuit> circuits;
+    private final List<Station> stations;
+    private final List<Metro.Rule> rules;
+    private final List<Metro.AR> ars;
+    private final List<Metro.Circuit> circuits;
 
     private int tempsArret;
 
@@ -35,8 +34,10 @@ public class MetroAutomatonText extends Automaton{
         rules = new ArrayList<>();
         Init();
     }
+
     public void Init() throws FileNotFoundException, BadValueException {
         Scanner scanner = new Scanner(file);
+        int numberLine = 0;
         while (scanner.hasNextLine()){
             String strline = scanner.nextLine();
             if (Pattern.matches("% stations", strline)){
@@ -48,7 +49,7 @@ public class MetroAutomatonText extends Automaton{
                 }
             }
             if (Pattern.matches("% liaisons A/R", strline)){
-                Metro.AR ar = new Metro.AR();
+                Metro.AR ar = new Metro.AR(++numberLine);
                 scanner.nextLine();
                 String nextLine = scanner.nextLine();
                 while (Pattern.matches("(\\w+)(\\s+)(\\w+)\\s+\\d{1,2}(?!\\d)", nextLine)){
@@ -60,7 +61,7 @@ public class MetroAutomatonText extends Automaton{
                 ars.add(ar);
             }
             if (Pattern.matches("% liaisons circuit", strline)){
-                Metro.Circuit circuit = new Metro.Circuit();
+                Metro.Circuit circuit = new Metro.Circuit(++numberLine);
                 scanner.nextLine();
                 String nextLine = scanner.nextLine();
                 while (Pattern.matches("(\\w+)(\\s+)(\\w+)\\s+\\d{1,2}(?!\\d)", nextLine)){
@@ -121,10 +122,9 @@ public class MetroAutomatonText extends Automaton{
     public void defineLines() throws BadValueException {
         addNetworkGlobalStations();
 
-        int numberLine = 0;
         for (Metro.AR liaisonAR: ars) {
             Line line = new Line(Transport.METRO);
-            line.setName("" + (++numberLine));
+            line.setName("" + liaisonAR.getId());
             line.setStations(liaisonAR.getAllStations());
 
             List<Direction> directions = new ArrayList<>();
@@ -161,7 +161,7 @@ public class MetroAutomatonText extends Automaton{
 
         for(Metro.Circuit liaisonCircuit: circuits){
             Line line = new Line(Transport.METRO);
-            line.setName("" + (++numberLine));
+            line.setName("" + liaisonCircuit.getId());
             line.setStations(liaisonCircuit.getAllStations());
 
             List<Direction> directions = new ArrayList<>();
@@ -261,8 +261,18 @@ public class MetroAutomatonText extends Automaton{
 
     private long getGoodDuration(Line line, Direction direction){
         Station current = direction.getCurrentStation();
-        // TODO : numéroté les AR et circuit avec même numéro que ligne et rechercher dedans
-        return 0;
+        Metro.AR ar1 = ars.stream().filter(ar -> ar.getId() == Integer.parseInt(line.getName())).findFirst().orElse(null);
+        if (ar1 != null){
+            Metro.Lnode lnode1 = ar1.getLnodes().stream().filter(lnode -> lnode.getStart().equals(current.getNom())).findFirst().get();
+            return lnode1.getDuration();
+        }
+
+        Metro.Circuit circuit1 = circuits.stream().filter(circuit -> circuit.getId() == Integer.parseInt(line.getName())).findFirst().orElse(null);
+        if (circuit1 != null){
+            Metro.Lnode lnode1 = circuit1.getLnodes().stream().filter(lnode -> lnode.getStart().equals(current.getNom())).findFirst().get();
+            return lnode1.getDuration();
+        }
+        return -1;
     }
 
     @Override
